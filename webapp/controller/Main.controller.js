@@ -50,7 +50,7 @@ sap.ui.define([
                 if(i_country !== null){
                     /** Get the Binding Path : (/ENTITYSET(KEY)) */
                     const countryPath = i_country.getBindingContext().getPath();
-                    console.log(countryPath);
+                    // console.log(countryPath); // To be removed
                     this.byId("sPlant").setValue("");
                     this.byId("sPlant").removeAllItems();
                     /** 
@@ -69,7 +69,7 @@ sap.ui.define([
                             additionalText: "{Werks}"
                         })
                     });
-
+                    
                     
                 }else{
 

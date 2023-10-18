@@ -2,7 +2,9 @@
     xmlns="sap.m"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:fb="sap.ui.comp.filterbar"
-    xmlns:core="sap.ui.core">
+    xmlns:core="sap.ui.core"
+    xmlns:vk="sap.ui.vk"
+    xmlns:vbm="sap.ui.vbm">
     <Page id="page" title="{i18n>title}">
         <content>
             <!-- ****************************************************** -->
@@ -12,7 +14,108 @@
             <!-- ****************************************************** -->
             <!-- ******************* Map Container ******************** -->
             <!-- ****************************************************** -->
-            
+            <vk:MapContainer id="mapContainer" autoAdjustHeight="true" showHome="true" showNavbar="true" showRectangularZoom="true" settingsPressed="getSettingsPressed" showSettings="false" showSelection="false" contentChange="clickMapContainer">
+                <vk:listPanelStack>
+                    <vk:ListPanelStack width="330px" id="idListPanelGeoMap001" visible="false">
+                        <vk:content>
+                            <vk:ListPanel id="idLegendStokColor" headerText="Legend" selectionMode="SingleSelectMaster" headerIcon="sap-icon://legend" expanded="true">
+                                <vk:items>
+                                    <!--<GroupHeaderListItem title="Transport" upperCase="false"/>-->
+                                    <!--<vk:LegendItem title="Truck" icon="sap-icon://shipping-status"/>-->
+                                    <!--<vk:LegendItem title="Train" icon="sap-icon://cargo-train"/>-->
+                                    <GroupHeaderListItem id="_IDGenGroupHeaderListItem1" title="{i18n>StockTypeLegend}"/>
+                                    <vk:LegendItem id="_IDGenLegendItem1" title="{i18n>LABST}" color="{i18n>colorLABST}"/>
+                                    <vk:LegendItem id="_IDGenLegendItem2" title="{i18n>EINME}" color="{i18n>colorEINME}"/>
+                                    <vk:LegendItem id="_IDGenLegendItem3" title="{i18n>SPEME}" color="{i18n>colorSPEME}"/>
+                                    <vk:LegendItem id="_IDGenLegendItem4" title="{i18n>INSME}" color="{i18n>colorINSME}"/>
+                                    <vk:LegendItem id="_IDGenLegendItem5" title="{i18n>RETME}" color="{i18n>colorRETME}"/>
+                                    <vk:LegendItem id="_IDGenLegendItem6" title="{i18n>UMLME}" color="{i18n>colorUMLME}"/>
+                                </vk:items>
+                            </vk:ListPanel>
+                            <vk:ListPanel id="idLegendConformityColor" headerText="Legend" selectionMode="SingleSelectMaster" headerIcon="sap-icon://legend" expanded="true">
+                                <vk:items>
+                                    <GroupHeaderListItem id="_IDGenGroupHeaderListItem2" title="{i18n>ConformityResultLegend}" upperCase="false"/>
+                                </vk:items>
+                            </vk:ListPanel>
+                        </vk:content>
+                    </vk:ListPanelStack>
+                </vk:listPanelStack>
+                <!-- ****************************************************** -->
+                <!-- ******************* Maps ***************************** -->
+                <!-- ****************************************************** -->
+                <vk:content>
+                    <vk:ContainerContent id="ccAnalyticMap" title="{i18n>quantityAnalytic}" icon="sap-icon://business-by-design">
+                        <vk:content>
+                            <!--=======================================-->
+                            <!--=============   Analytic Maps =========-->
+                            <!--=======================================-->
+                            <vbm:AnalyticMap id="analyticMap001" width="100%" height="100%">
+                                <vbm:vos>
+                                    <vbm:Spots id="sStockLabels"></vbm:Spots>
+                                    <vbm:Circles id="sStockCirclesQuantity"></vbm:Circles>
+                                </vbm:vos>
+                            </vbm:AnalyticMap>
+                        </vk:content>
+                    </vk:ContainerContent>
+                    <vk:ContainerContent id="ccGeoMap001" title="{i18n>quantityGeo}" icon="sap-icon://map-2">
+                        <vk:content>
+                            <!--=======================================-->
+                            <!--=============   Geo Maps N°1  =========-->
+                            <!--=======================================-->
+                            <vbm:GeoMap id="geographicMap1" width="100%"
+                                xmlns:l="sap.ui.layout" height="100%" legendVisible="false" centerChanged="geoMap001CenterChanged" zoomChanged="geoMap001ZoomChanged">
+                                <vbm:Pies id="sQuantityPies"/>
+                                <vbm:vos>
+                                    <vbm:Containers id="_IDGenContainers1">
+                                        <vbm:Container id="_IDGenContainer1" position="15;15;0">
+                                            <vbm:item></vbm:item>
+                                        </vbm:Container>
+                                    </vbm:Containers>
+                                    <vbm:Spots id="sCustomerQuantitySpot" contextMenu="onContextMenuItem">
+                                        <vbm:Spot id="_IDGenSpot1" position="" tooltip="customer" labelType="" labelText="" labelPos="5" click="onClickItem" contextMenu="sCustomerSpotsContextMenu"></vbm:Spot>
+                                    </vbm:Spots>
+                                    <vbm:Routes id="_IDGenRoutes1">
+                                        <vbm:Route id="idCustomerQuantityRoute" position="" tooltip="" labelText="" end="0" start="0" color="rgba(222,49,49, 1)" hotDeltaColor="RHLSA(0,1,1,0.6)" click="onClickRoute" contextMenu="onContextMenuRoute"/>
+                                    </vbm:Routes>
+                                    <!--colorBorder="rgb(247,141,141)"-->
+                                </vbm:vos>
+                            </vbm:GeoMap>
+                        </vk:content>
+                    </vk:ContainerContent>
+                    <vk:ContainerContent id="ccGeoMap002" title="{i18n>conformity}" icon="sap-icon://customer-order-entry">
+                        <vk:content>
+                            <!--=======================================-->
+                            <!--=============   Geo Maps N°2  =========-->
+                            <!--=======================================-->
+                            <vbm:GeoMap id="geographicMap2" width="100%"
+                                xmlns:l="sap.ui.layout" height="100%" legendVisible="false" centerChanged="geoMap002CenterChanged" zoomChanged="geoMap002ZoomChanged">
+                                <vbm:vos>
+                                    <vbm:Spots id="sCustomerConformitySpot" contextMenu="onContextMenuItem">
+                                        <vbm:Spot id="_IDGenSpot2" position="" tooltip="customer" labelType="" labelText="" labelPos="5" click="onClickItem" contextMenu="sCustomerSpotsContextMenu"></vbm:Spot>
+                                    </vbm:Spots>
+                                    <vbm:Pies id="sConformityPies"/>
+                                    <vbm:Spots id="sStockLabelsGoogle"></vbm:Spots>
+                                    <vbm:Routes id="_IDGenRoutes2">
+                                        <vbm:Route id="idCustomerConformityRoute" position="" tooltip="" labelText="" end="0" start="0" color="rgba(222,49,49, 1)" hotDeltaColor="RHLSA(0,1,1,0.6)" click="onClickRoute" contextMenu="onContextMenuRoute"/>
+                                    </vbm:Routes>
+                                </vbm:vos>
+                            </vbm:GeoMap>
+                        </vk:content>
+                    </vk:ContainerContent>
+                    <vk:ContainerContent id="ccAnalyticMap002" title="{i18n>stockValue}" icon="sap-icon://full-stacked-chart">
+                        <vk:content>
+                            <!--===================================================-->
+                            <!--=============   Analytic Maps Value based =========-->
+                            <!--===================================================-->
+                            <vbm:AnalyticMap id="analyticMap002" width="100%" height="100%">
+                                <vbm:vos>
+                                    <vbm:Circles id="sStockCirclesValue"></vbm:Circles>
+                                </vbm:vos>
+                            </vbm:AnalyticMap>
+                        </vk:content>
+                    </vk:ContainerContent>
+                </vk:content>
+            </vk:MapContainer>
         </content>
     </Page>
 </mvc:View>

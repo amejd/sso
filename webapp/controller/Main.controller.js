@@ -6,12 +6,12 @@ sap.ui.define([
     "sap/ui/model/Filter", 
     "sap/ui/core/Fragment", 
     "sap/m/MessageToast", 
-    // "../utils/myMapsUtil" //Add it the callback function 
+    "../utils/myMapsUtil"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, AnalyticalMap, JSONModel, Device, Filter, Fragment, MessageToast) {
+    function (Controller, AnalyticalMap, JSONModel, Device, Filter, Fragment, MessageToast, myMapsUtil) {
         "use strict";
 
         return Controller.extend("smartstock.controller.Main", {
@@ -31,12 +31,19 @@ sap.ui.define([
                 console.log(oDeviceModel); // To be removed
 
                 /** Map Initial Configuration Below */
-           
+                this.getOwnerComponent().getModel().read('/COUNTRIES', {
+                    success: function(s){
+                        console.log(s);
+                    },
+                    error: function(e){
+                        console.log(e);
+                    }
+                })
 
             },
             /**********************  Filter Bar Functions -- Start  ************************/
             onSearch: function(){
-                console.log('Go button clicked !'); // To be removed
+                console.log('Go button clicked !'); // To be removed 
             },
             onReset: function(){
                 console.log('Reset button clicked !'); // To be removed

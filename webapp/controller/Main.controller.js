@@ -17,7 +17,6 @@ sap.ui.define([
         return Controller.extend("smartstock.controller.Main", {
             onInit: function () {
                 console.log('onInit'); // To be removed
-
                 /** Setting size limit of the oModel */
                 const oModel = this.getOwnerComponent().getModel()
                 oModel.setSizeLimit(1e3)
@@ -27,19 +26,23 @@ sap.ui.define([
                 const oDeviceModel = new JSONModel(Device)
                 oDeviceModel.setDefaultBindingMode("OneWay")
                 this.getView().setModel(oDeviceModel, "device")
-                console.log("oDeviceModel\n"); // To be removed
-                console.log(oDeviceModel); // To be removed
-
-                /** Map Initial Configuration Below */
-                this.getOwnerComponent().getModel().read('/COUNTRIES', {
-                    success: function(s){
-                        console.log(s);
-                    },
-                    error: function(e){
-                        console.log(e);
-                    }
-                })
-
+            },
+            onAfterRendering : function(){
+                /**  Description : 
+                 *   Function is called when the rendering of the control is completed.
+                     Applications must not call this hook method directly, it is called by the framework.
+                     
+                     - We use it to make sure that we call the setMap() Method only after the view is fully loaded
+                     Purpose :  Map Initial Configuration Below 
+                */
+                // Handling scope
+                const that = this
+                this.getView().attachAfterInit(function(that) {
+                    // All components in the view have been loaded, and this code will execute only once.
+                    myMapsUtil.setMap(that)
+                    window.myvRenderGeoMapAuto = "M"
+                    sap.ui.getCore().AppContext.globeView = that.getView();
+                });
             },
             /**********************  Filter Bar Functions -- Start  ************************/
             onSearch: function(){
@@ -76,7 +79,9 @@ sap.ui.define([
                             additionalText: "{Werks}"
                         })
                     });
-                    
+                    const analyticalMap = sap.ui.getCore().AppContext.globeView.byId("analyticMap001");
+                    analyticalMap.zoomToRegions([i_country.getKey()])
+                    console.log(i_country.getKey());
                     
                 }else{
 

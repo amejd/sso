@@ -3,11 +3,15 @@ sap.ui.define(["../utils/myMapsUtil"], function (e) {
     return {
         vHEREMapURL: String("val"),
         vRenderGeoMapAuto: String("N"),
-        setMap: function (e) {
+        setMap: function (ea) {
+            console.log(ea);
             var t = "qZn4Oejg6GJhFAGgOkEJpCBQYXqSrzX41hIPZpxBGBc";
             var a = "https://1.base.maps.ls.hereapi.com/maptile/2.1/maptile/newest/normal.day.grey";
             var o = a + "/{LOD}/{X}/{Y}/256/png8?apiKey=" + t;
-            var r = e.getView().byId("geographicMap1");
+            // debugger;
+            var r = ea.byId("geographicMap1");
+            console.log('LOGS');
+            console.log(r);
             var p = {
                 MapProvider: [{
                     name: "HEREMAPS",

@@ -1,0 +1,72 @@
+<mvc:View controllerName="smartstock.controller.Main"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:core="sap.ui.core">
+    <fb:FilterBar id="filterbar" reset="onReset" search="onSearch" useToolbar="true" showGoOnFB="true" showRestoreButton="true" filterBarExpanded="false">
+        <fb:filterGroupItems>
+            <fb:FilterGroupItem id="_IDGenFilterGroupItem1" groupName="Location" groupTitle="{i18n>Location}" name="Country" label="{i18n>Country}" visibleInFilterBar="true">
+                <fb:control>
+                    <ComboBox id="sCountry" selectionChange="onCountryChange" showSecondaryValues="true" filterSecondaryValues="true" value="{/comboBoxValue}" selectedKey="{/comboBoxKey}" items="{ path: '/COUNTRIES', sorter: { path: 'Landx' } }">
+                        <core:ListItem id="_IDGenListItem1" key="{Land1}" text="{Landx}" additionalText="{Land1}"/>
+                    </ComboBox>
+                </fb:control>
+            </fb:FilterGroupItem>
+
+            <fb:FilterGroupItem id="_IDGenFilterGroupItem2" groupName="Location" groupTitle="{i18n>Location}" name="Plant" label="{i18n>Plant}" visibleInFilterBar="true">
+                <fb:control>
+                    <ComboBox id="sPlant" selectionChange="onPlantChange" showSecondaryValues="true" filterSecondaryValues="true" value="{/comboBoxValue}" selectedKey="{/comboBoxKey}" items="{ path: '/Plants' }">
+                        <core:ListItem id="_IDGenListItem2" key="{Werks}" text="{Name1}" additionalText="{Werks}">
+                            <!-- <core:customData key="{../Werks}" value="{../Land1}"/> -->
+                        </core:ListItem>
+                    </ComboBox>
+                </fb:control>
+            </fb:FilterGroupItem>
+
+            <fb:FilterGroupItem id="_IDGenFilterGroupItem3" groupName="Material" groupTitle="{i18n>Material}" name="MaterialtType" label="{i18n>MaterialtType}" visibleInFilterBar="true">
+                <fb:control>
+                    <ComboBox id="sMaterialtType" selectionChange="onMaterialtTypeChange" showSecondaryValues="true" filterSecondaryValues="true" value="{/comboBoxValue}" selectedKey="{/comboBoxKey}" items="{ path: '/MatrialTypes' }">
+                        <core:ListItem id="_IDGenListItem3" key="{Mtart}" text="{Mtbez}" additionalText="{Mtart}"/>
+                    </ComboBox>
+                </fb:control>
+            </fb:FilterGroupItem>
+
+            <fb:FilterGroupItem id="_IDGenFilterGroupItem4" groupName="Material" groupTitle="{i18n>Material}" name="Material" label="{i18n>Material}" visibleInFilterBar="true">
+                <fb:control>
+                    <ComboBox id="sMaterial" selectionChange="onMaterialChange" showSecondaryValues="true" filterSecondaryValues="true" value="{/comboBoxValue}" selectedKey="{/comboBoxKey}" items="{ path: '/Materials' }">
+                        <!--<core:Item key="{Matnr}" text="{Maktx}"/>-->
+                        <core:ListItem id="_IDGenListItem4" key="{Matnr}" text="{Maktx}" additionalText="{Matnr}"/>
+                    </ComboBox>
+                </fb:control>
+            </fb:FilterGroupItem>
+
+            <fb:FilterGroupItem id="_IDGenFilterGroupItem5" groupName="Material" groupTitle="{i18n>Material}" name="StockType" label="{i18n>StockType}"  visibleInFilterBar="true">
+                <fb:control>
+                    <ComboBox id="sStockType" selectionChange="onStockTypeChange">
+                        <core:Item id="_IDGenItem1" key="LABST" text="{i18n>LABST}"/>
+                        <core:Item id="_IDGenItem2" key="EINME" text="{i18n>EINME}"/>
+                        <core:Item id="_IDGenItem3" key="SPEME" text="{i18n>SPEME}"/>
+                        <core:Item id="_IDGenItem4" key="INSME" text="{i18n>INSME}"/>
+                        <core:Item id="_IDGenItem5" key="RETME" text="{i18n>RETME}"/>
+                        <core:Item id="_IDGenItem6" key="UMLME" text="{i18n>UMLME}"/>
+                    </ComboBox>
+                </fb:control>
+            </fb:FilterGroupItem>
+            <fb:FilterGroupItem id="_IDGenFilterGroupItem6" groupName="Partner" groupTitle="{i18n>Partner}" name="Vendor" label="{i18n>Vendor}"  visibleInFilterBar="true">
+                <fb:control>
+                    <ComboBox id="sVendor" selectionChange="onVendorChange" showSecondaryValues="true" filterSecondaryValues="true" value="{/comboBoxValue}" selectedKey="{/comboBoxKey}" items="{ path: '/Vendors', sorter: { path: 'Name1' } }">
+                        <core:ListItem id="_IDGenListItem5" key="{Lifnr}" text="{Name1}" additionalText="{Lifnr}"/>
+                    </ComboBox>
+                </fb:control>
+            </fb:FilterGroupItem>
+            <fb:FilterGroupItem id="_IDGenFilterGroupItem7" groupName="Partner" groupTitle="{i18n>Partner}" name="Customer" label="{i18n>Customer}"  visibleInFilterBar="true">
+                <fb:control>
+                    <ComboBox id="sCustomer" selectionChange="onCustomerChange" showSecondaryValues="true" filterSecondaryValues="true" value="{/comboBoxValue}" selectedKey="{/comboBoxKey}" items="{ path: '/Customer', sorter: { path: 'Name1' } }">
+                        <core:ListItem id="_IDGenListItem6" key="{Kunnr}" text="{Name1}" additionalText="{Kunnr}"/>
+                    </ComboBox>
+                </fb:control>
+            </fb:FilterGroupItem>
+        </fb:filterGroupItems>
+    </fb:FilterBar>
+</mvc:View>

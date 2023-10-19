@@ -49,7 +49,7 @@ sap.ui.define([
 
                 });
             },
-            onGetMaps: function() {
+            onGetMaps: function () {
                 /** Getting the Main view absolute path not the Filterbar View 
                 *  and by using the absolute ID we get our view > Check the Component.js File */
                 const aMap001_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap001`
@@ -161,10 +161,10 @@ sap.ui.define([
                     analyticalMap_002.isRendered() && analyticalMap_002.setZoomlevel(0);
                 }
             },
-            onPlantChange: function () {
+            onPlantChange: function (oEvent) {
                 console.log('onPlantChange'); // To be removed
                 // Get the value of the input
-                const i_plant = e.getParameter("selectedItem");
+                const i_plant = oEvent.getParameter("selectedItem");
                 /** Getting the Main view absolute path not the Filterbar View 
                 *  and by using the absolute ID we get our view > Check the Component.js File */
                 const aMap001_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap001`
@@ -230,22 +230,140 @@ sap.ui.define([
                     }
                 }
             },
-            onMaterialtTypeChange: function () {
+            onMaterialtTypeChange: function (oEvent) {
                 console.log('onMaterialtTypeChange'); // To be removed
+                // Get value of the input
+                const i_materialType = oEvent.getSource().getSelectedItem();
+                // Controlling the MaterialType value - Below
+                if (i_materialType !== null) {
+                    /** Get the Binding Path : (/ENTITYSET(KEY)) */
+                    const materialTypePath = i_materialType.getBindingContext().getPath();
+                    /** 
+                     *  In the statement below, we want to get the relative Materials 
+                     *  Based on the MaterialType
+                     */
+                    this.byId("sMaterial").bindAggregation("items", {
+                        path: materialTypePath + "/TypeToMaterialNav",
+                        template: new sap.ui.core.ListItem({
+                            key: "{Matnr}",
+                            text: "{Maktx}",
+                            additionalText: "{Matnr}"
+                        })
+                    })
+                } else {
+                    this.byId("sMaterial").bindAggregation("items", {
+                        path: "/Materials",
+                        template: new sap.ui.core.ListItem({
+                            key: "{Matnr}",
+                            text: "{Maktx}",
+                            additionalText: "{Matnr}"
+                        })
+                    })
+                }
             },
-            onMaterialChange: function () {
+            onMaterialChange: function (oEvent) {
                 console.log('onMaterialChange'); // To be removed
             },
-            onStockTypeChange: function () {
+            onStockTypeChange: function (oEvent) {
                 console.log('onStockTypeChange'); // To be removed
             },
-            onVendorChange: function () {
+            onVendorChange: function (oEvent) {
                 console.log('onVendorChange'); // To be removed
             },
-            onCustomerChange: function () {
+            onCustomerChange: function (oEvent) {
                 console.log('onCustomerChange'); // To be removed
-            }
+                // Get Views & Components
+                const customerQuantityRoute = this._onGetViewById('idCustomerQuantityRoute')
+                customerQuantityRoute.setPosition("")
+                const customerConformityRoute = this._onGetViewById('idCustomerConformityRoute')
+                customerConformityRoute.setPosition("")
+                const customerQuantitySport = this._onGetViewById('sCustomerQuantitySpot')
+                customerQuantitySport.removeAllItems()
+                const customerConformitySpot = this._onGetViewById('sCustomerConformitySpot')
+                customerConformitySpot.removeAllItems()
+                // Get value of the input
+                const i_customer = oEvent.getSource().getSelectedItem().getKey();
+                // Get Model
+                const oModel = this.getOwnerComponent().getModel()
+                // Read Data
+                oModel.read(`/Customer('${i_customer}')`, {
+                    success: function (oData) {
+                        const address = oData.address
+                        if (address !== "" && address !== null) {
+                            const xmlHttpRequest = new XMLHttpRequest()
+                            const apiKey = sap.ui.getCore().AppContext.HereApiKey;
+                            const geoCoderLink = sap.ui.getCore().AppContext.HereGeocoderLink;
+                            // Prepare URI
+                            const uriAPI = `${geoCoderLink}&apikey=${apiKey}&searchtext${address}`
+                            console.log(uriAPI); // To be removed
+
+                            xmlHttpRequest.open('GET', uriAPI, false)
+                            xmlHttpRequest.send()
+                            console.log("Customer Spot : " + xmlHttpRequest.responseText); // To be removed
+
+                            try {
+                                const apiResponse = JSON.parse(xmlHttpRequest.responseText);
+                                const Longitude = apiResponse.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
+                                const Latitude = apiResponse.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
+
+                                customerQuantitySport.addItem(
+                                    new sap.ui.vbm.Spot({
+                                        tooltip: oData.Name1 + "\nAdresse : " + oData.Address,
+                                        type: "Success",
+                                        position: Longitude + ";" + Latitude + ";0",
+                                        contextMenu: function (e) {
+                                            i.customerSpotContext(e)
+                                        }
+                                    })
+                                )
+
+                                customerConformitySpot.addItem(
+                                    new sap.ui.vbm.Spot({
+                                        tooltip: oData.Name1 + "\nAdresse : " + oData.Address,
+                                        type: "Success",
+                                        position: Longitude + ";" + Latitude + ";0",
+                                        contextMenu: function (e) {
+                                            i.customerSpotContext(e)
+                                        }
+                                    }));
+
+                                const position = Longitude + ";" + Latitude;
+                                const gMap1_path = sap.ui.getCore().AppContext.MapGeoQuantity;
+                                const geographicMap1 = this._onGetViewById(gMap1_path)
+                                geographicMap1.setCenterPosition(position);
+
+                                const gMap2_path = sap.ui.getCore().AppContext.MapGeoValue
+                                const geographicMap2 = this._onGetViewById(gMap2_path)
+                                geographicMap2.setCenterPosition(position)
+
+                            } catch (error) {
+                                console.log(error.message);
+                                const errMessage = "Warning \r\n Customer address not found.";
+                                r.show(errMessage)
+                            }
+                        }
+                    },
+                    error: function (oError) {
+                        console.log(oError);
+                        const oMapContainer = this._onGetViewById('mapContainer')
+                        oMapContainer.setBusy(false)
+                    }
+                })
+
+
+            },
             /**********************  Filter Bar Functions -- End ***************************/
+
+            /**********************  Controller Private Functions -- Start ***************************/
+            _onGetViewById: function (componentId) {
+                /** This function return the View by using the absolute Path to it, check the Component.js 
+                 *  to see the paths defined there
+                 */
+                return sap.ui.getCore().byId(`${sap.ui.getCore().AppContext.MainView}--${componentId}`);
+            }
+            /**********************  Controller Private Functions -- End ***************************/
+
+
 
 
         });

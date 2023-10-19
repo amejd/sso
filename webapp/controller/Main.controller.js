@@ -402,6 +402,50 @@ sap.ui.define([
                     this._oQuickView.openBy(source)
                 }
             },
+            handlePopoverPress: function (oEvent) {
+                console.log("Click Event : handlePopoverPress  ");
+                var source = oEvent.getSource();
+                if (!this._oPopover) {
+                    Fragment.load({
+                        name: "smartstock.view.Popover",
+                        controller: this
+                    }).then(function (e) {
+                        this._oPopover = e;
+                        sap.ui.getCore().AppContext.globeView.addDependent(this._oPopover);
+                        this._oPopover.openBy(source)
+                    }
+                        .bind(this))
+                } else {
+                    this._oPopover.openBy(source)
+                }
+            },
+            onSelectdisplayMode : function(oEvent){
+                var selectedMode = oEvent.getSource().getSelectedItem();
+                var mapContainer = this._onGetViewById('mapContainer')
+                let flag = 0;
+                switch (selectedMode.getKey()) {
+                case "quantityAnalytic":
+                    flag = 0;
+                    break;
+                case "quantityGeo":
+                    flag = 1;
+                    break;
+                case "conformity":
+                    flag = 2;
+                    break;
+                case "stockValue":
+                    flag = 3;
+                    break;
+                default:
+                }
+                const selectedContent = mapContainer.getSelectedContent().getContent();
+                mapContainer.setSelectedContent(mapContainer.getContent()[flag]);
+                mapContainer.rerender();
+
+                const selectedContentZoomLevel = selectedContent.getZoomlevel();
+                const selectedContentCenterPosition = selectedContent.getCenterPosition();
+                myMapsUtil.setZoom(mapContainer.getSelectedContent().getContent().getId(), selectedContentZoomLevel, selectedContentCenterPosition)
+            },
             /**********************  Map Container Functions -- End ***************************/
 
             /**********************  Controller Private Functions -- Start ***************************/

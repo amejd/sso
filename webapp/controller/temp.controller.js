@@ -236,49 +236,5 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
             });
             var A = sap.ui.getCore().AppContext.globeView.byId("idListPanelGeoMap001")
         },
-        onSelectdisplayMode: function (e) {
-            var t = e.getSource().getSelectedItem();
-            var o = sap.ui.getCore().AppContext.globeView.byId("mapContainer");
-            var a = 0;
-            var n;
-            switch (t.getKey()) {
-            case "quantityAnalytic":
-                a = 0;
-                break;
-            case "quantityGeo":
-                a = 1;
-                break;
-            case "conformity":
-                a = 2;
-                break;
-            case "stockValue":
-                a = 3;
-                break;
-            default:
-            }
-            n = o.getSelectedContent().getContent();
-            o.setSelectedContent(o.getContent()[a]);
-            o.rerender();
-            var s = n.getZoomlevel();
-            var r = n.getCenterPosition();
-            i.setZoom(o.getSelectedContent().getContent().getId(), s, r)
-        },
-        handlePopoverPress: function (e) {
-            console.log("Click Event : handlePopoverPress  ");
-            var t = e.getSource();
-            if (!this._oPopover) {
-                s.load({
-                    name: "STK.smartstock.view.Popover",
-                    controller: this
-                }).then(function (e) {
-                    this._oPopover = e;
-                    sap.ui.getCore().AppContext.globeView.addDependent(this._oPopover);
-                    this._oPopover.openBy(t)
-                }
-                    .bind(this))
-            } else {
-                this._oPopover.openBy(t)
-            }
-        },
     })
 }, true);

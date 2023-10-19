@@ -1,0 +1,20 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<Popover id="_IDGenPopover1"
+		title="PopOver Name"
+		class="sapUiResponsivePadding--header sapUiResponsivePadding--content sapUiResponsivePadding--footer"
+		placement="Bottom"
+		initialFocus="email">
+		<footer>
+			<OverflowToolbar id="_IDGenOverflowToolbar1">
+				<ToolbarSpacer id="_IDGenToolbarSpacer1"/>
+				<Button id="_IDGenButton1"
+
+					text="Email"
+					press="handleEmailPress" />
+			</OverflowToolbar>
+		</footer>
+		<!--<Image src="{ProductPicUrl}" width="15em" densityAware="false" />-->
+	</Popover>
+</core:FragmentDefinition>

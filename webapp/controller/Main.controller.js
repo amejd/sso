@@ -385,6 +385,23 @@ sap.ui.define([
                 // Set THE mapUtil
                 myMapsUtil.setZoom(oEvent, mParameters.selectedItemId, currentMapZoomLevel, currentMapCenterPosition)
             },
+            sCustomerSpotsContextMenu: function(oEvent){
+                console.log('sCustomerSpotsContextMenu fired !'); // To be removed
+                console.log(oEvent); // To be removed
+                const source = oEvent.getSource();
+                if (!this._oQuickView) {
+                    Fragment.load({
+                        name: "smartstock.view.CustomerQuickView",
+                        controller: this
+                    }).then(function (e) {
+                        this._oQuickView = e;
+                        this._oQuickView.openBy(source)
+                    }
+                        .bind(this))
+                } else {
+                    this._oQuickView.openBy(source)
+                }
+            },
             /**********************  Map Container Functions -- End ***************************/
 
             /**********************  Controller Private Functions -- Start ***************************/

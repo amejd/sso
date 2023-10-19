@@ -263,22 +263,6 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
             var r = n.getCenterPosition();
             i.setZoom(o.getSelectedContent().getContent().getId(), s, r)
         },
-        sCustomerSpotsContextMenu: function (e) {
-            console.log(e);
-            var t = e.getSource();
-            if (!this._oQuickView) {
-                s.load({
-                    name: "STK.smartstock.view.CustomerQuickView",
-                    controller: this
-                }).then(function (e) {
-                    this._oQuickView = e;
-                    this._oQuickView.openBy(t)
-                }
-                    .bind(this))
-            } else {
-                this._oQuickView.openBy(t)
-            }
-        },
         handlePopoverPress: function (e) {
             console.log("Click Event : handlePopoverPress  ");
             var t = e.getSource();

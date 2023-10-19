@@ -1,0 +1,21 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<QuickView
+		id="quickView"
+		navigate=".onNavigate">
+		<QuickViewPage id="_IDGenQuickViewPage1"
+			pageId="pageId"
+			header="header"
+			icon="sap-icon://building"
+			title="title"
+			titleUrl="https://experience.sap.com/"
+			description="description"
+			>
+			<QuickViewGroup id="_IDGenQuickViewGroup1" heading="Contact Details" >
+				<QuickViewGroupElement id="_IDGenQuickViewGroupElement1"
+					label="Phone"
+					value="+001 6101 34869-0"
+					type="phone" />
+			</QuickViewGroup>
+		</QuickViewPage>
+	</QuickView>
+</core:FragmentDefinition>

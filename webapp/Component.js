@@ -44,6 +44,10 @@ sap.ui.define([
                 sap.ui.getCore().AppContext.MapGeoQuantity		= "geographicMap1";
                 sap.ui.getCore().AppContext.MapGeoValue 		= "geographicMap2";
                 sap.ui.getCore().AppContext.MapAnalyticValue	= "analyticMap002";
+
+                // Views Global Declaration
+                sap.ui.getCore().AppContext.MainView = "application-smartstock-display-component---Main"
+                sap.ui.getCore().AppContext.FilterBarView = "application-smartstock-display-component---Main--Filterbar"
             }
         });
     }

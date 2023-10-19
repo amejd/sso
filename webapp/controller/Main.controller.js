@@ -49,6 +49,21 @@ sap.ui.define([
 
                 });
             },
+            onGetMaps: function() {
+                /** Getting the Main view absolute path not the Filterbar View 
+                *  and by using the absolute ID we get our view > Check the Component.js File */
+                const aMap001_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap001`
+                const aMap002_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap002`
+                const gMap1_path = `${sap.ui.getCore().AppContext.MainView}--geographicMap1`
+                const gMap2_path = `${sap.ui.getCore().AppContext.MainView}--geographicMap2`
+                // We get the view of the Map
+                const analyticalMap_001 = sap.ui.getCore().byId(aMap001_path);
+                const analyticalMap_002 = sap.ui.getCore().byId(aMap002_path);
+                const geographicMap_1 = sap.ui.getCore().byId(gMap1_path);
+                const geographicMap_2 = sap.ui.getCore().byId(gMap2_path);
+
+                return analyticalMap_001, analyticalMap_002, geographicMap_1, geographicMap_2
+            },
             /**********************  Filter Bar Functions -- Start  ************************/
             onSearch: function () {
                 console.log('Go button clicked !'); // To be removed 
@@ -148,6 +163,72 @@ sap.ui.define([
             },
             onPlantChange: function () {
                 console.log('onPlantChange'); // To be removed
+                // Get the value of the input
+                const i_plant = e.getParameter("selectedItem");
+                /** Getting the Main view absolute path not the Filterbar View 
+                *  and by using the absolute ID we get our view > Check the Component.js File */
+                const aMap001_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap001`
+                const aMap002_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap002`
+                const gMap1_path = `${sap.ui.getCore().AppContext.MainView}--geographicMap1`
+                const gMap2_path = `${sap.ui.getCore().AppContext.MainView}--geographicMap2`
+                // We get the view of the Map
+                const analyticalMap_001 = sap.ui.getCore().byId(aMap001_path);
+                const analyticalMap_002 = sap.ui.getCore().byId(aMap002_path);
+                const geographicMap_1 = sap.ui.getCore().byId(gMap1_path);
+                const geographicMap_2 = sap.ui.getCore().byId(gMap2_path);
+                // Get mainservice Model
+                const oModel = this.getOwnerComponent().getModel();
+                // Controlling the Plants ListItem based on the country value - Below
+                if (i_plant !== null) {
+                    oModel.read(`/Plants('${i_plant.getKey()}')`, {
+                        success: function (oData) {
+                            console.log(oData); // To be removed
+                            // Get the Lands relative to the Plant
+                            const Land1 = oData.Land1;
+                            analyticalMap_001.isRendered() && analyticalMap_001.zoomToRegions([Land1]);
+                            analyticalMap_002.isRendered() && analyticalMap_002.zoomToRegions([Land1]);
+                            // Get zoom level currently applied in the map
+                            const aMap001_zoomLevel = analyticalMap_001.getZoomlevel()
+                            // Retrieve the center position of the current map
+                            const aMap001_centerPosition = analyticalMap_001.getCenterPosition()
+                            /** Below : 
+                             *      If the others maps are used by the user, we want to set the same values 
+                             *      set for the AnalyticalMap for them
+                             */
+                            if (geographicMap_1.isRendered()) {
+                                geographicMap_1.setCenterPosition(aMap001_centerPosition)
+                                geographicMap_1.setZoomlevel(aMap001_zoomLevel)
+                            }
+
+                            if (geographicMap_2.isRendered()) {
+                                geographicMap_2.setCenterPosition(aMap001_centerPosition)
+                                geographicMap_2.setZoomlevel(aMap001_zoomLevel)
+                            }
+                        },
+                        error: function (oError) {
+                            console.log(oError);
+                            const oMapContainer = sap.ui.getCore().byId(`${sap.ui.getCore().AppContext.MainView}--mapContainer`)
+                            if (stockFound == 0) {
+                                const warningMessage = "Warning \r\n No stock foud for this selection.";
+                                geographicMap_1.show(warningMessage)
+                            }
+                            oMapContainer.setBusy(false)
+                        }
+                    })
+                } else {
+                    if (this.byId("sCountry").getSelectedItem() == null) {
+                        // Set Maps Values
+                        geographicMap_1.isRendered() && geographicMap_1.setCenterPosition("0;0;0")
+                        geographicMap_2.isRendered() && geographicMap_2.setCenterPosition("0;0;0")
+                        analyticalMap_001.isRendered() && analyticalMap_001.setCenterPosition("0;0;0")
+                        analyticalMap_002.isRendered() && analyticalMap_002.setCenterPosition("0;0;0")
+
+                        geographicMap_1.isRendered() && geographicMap_1.setZoomlevel(0);
+                        geographicMap_2.isRendered() && geographicMap_2.setZoomlevel(0);
+                        analyticalMap_001.isRendered() && analyticalMap_001.setZoomlevel(0);
+                        analyticalMap_002.isRendered() && analyticalMap_002.setZoomlevel(0);
+                    }
+                }
             },
             onMaterialtTypeChange: function () {
                 console.log('onMaterialtTypeChange'); // To be removed

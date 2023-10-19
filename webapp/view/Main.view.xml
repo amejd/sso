@@ -14,7 +14,7 @@
             <!-- ****************************************************** -->
             <!-- ******************* Map Container ******************** -->
             <!-- ****************************************************** -->
-            <vk:MapContainer id="mapContainer" autoAdjustHeight="true" showHome="true" showNavbar="true" showRectangularZoom="true" settingsPressed="getSettingsPressed" showSettings="false" showSelection="false" contentChange="clickMapContainer">
+            <vk:MapContainer id="mapContainer" autoAdjustHeight="true" showHome="true" showNavbar="true" showRectangularZoom="true" settingsPressed="getSettingsPressed" showSettings="false" showSelection="false" contentChange="onClickMapContainer">
                 <vk:listPanelStack>
                     <vk:ListPanelStack width="330px" id="idListPanelGeoMap001" visible="false">
                         <vk:content>

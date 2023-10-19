@@ -49,21 +49,6 @@ sap.ui.define([
 
                 });
             },
-            onGetMaps: function () {
-                /** Getting the Main view absolute path not the Filterbar View 
-                *  and by using the absolute ID we get our view > Check the Component.js File */
-                const aMap001_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap001`
-                const aMap002_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap002`
-                const gMap1_path = `${sap.ui.getCore().AppContext.MainView}--geographicMap1`
-                const gMap2_path = `${sap.ui.getCore().AppContext.MainView}--geographicMap2`
-                // We get the view of the Map
-                const analyticalMap_001 = sap.ui.getCore().byId(aMap001_path);
-                const analyticalMap_002 = sap.ui.getCore().byId(aMap002_path);
-                const geographicMap_1 = sap.ui.getCore().byId(gMap1_path);
-                const geographicMap_2 = sap.ui.getCore().byId(gMap2_path);
-
-                return analyticalMap_001, analyticalMap_002, geographicMap_1, geographicMap_2
-            },
             /**********************  Filter Bar Functions -- Start  ************************/
             onSearch: function () {
                 console.log('Go button clicked !'); // To be removed 
@@ -210,7 +195,7 @@ sap.ui.define([
                             const oMapContainer = sap.ui.getCore().byId(`${sap.ui.getCore().AppContext.MainView}--mapContainer`)
                             if (stockFound == 0) {
                                 const warningMessage = "Warning \r\n No stock foud for this selection.";
-                                geographicMap_1.show(warningMessage)
+                                MessageToast.show(warningMessage)
                             }
                             oMapContainer.setBusy(false)
                         }
@@ -312,7 +297,7 @@ sap.ui.define([
                                         type: "Success",
                                         position: Longitude + ";" + Latitude + ";0",
                                         contextMenu: function (e) {
-                                            i.customerSpotContext(e)
+                                            myMapsUtil.customerSpotContext(e)
                                         }
                                     })
                                 )
@@ -323,7 +308,7 @@ sap.ui.define([
                                         type: "Success",
                                         position: Longitude + ";" + Latitude + ";0",
                                         contextMenu: function (e) {
-                                            i.customerSpotContext(e)
+                                            myMapsUtil.customerSpotContext(e)
                                         }
                                     }));
 
@@ -339,7 +324,7 @@ sap.ui.define([
                             } catch (error) {
                                 console.log(error.message);
                                 const errMessage = "Warning \r\n Customer address not found.";
-                                r.show(errMessage)
+                                MessageToast.show(errMessage)
                             }
                         }
                     },
@@ -354,13 +339,76 @@ sap.ui.define([
             },
             /**********************  Filter Bar Functions -- End ***************************/
 
+            /**********************  Map Container Functions -- Start ***************************/
+            onClickMapContainer: function(oEvent){
+                console.log('ClickMapContainer fired ! '); // To be removed
+                // Get parent ID 
+                const parentID = oEvent.mParameters.selectedItemId.substr(0,oEvent.mParameters.selectedItemId.length - 14 );
+                console.log(parentID); // To be removed
+                // Get path of all maps using the ParentID
+                const analyticMap001_path = parentID + sap.ui.getCore().AppContext.MapAnalyticQuantity;
+                const analyticMap002_path = parentID + sap.ui.getCore().AppContext.MapAnalyticValue;
+                const geographicMap_1_path = parentID + sap.ui.getCore().AppContext.MapGeoQuantity;
+                const geographicMap2_path = parentID + sap.ui.getCore().AppContext.MapGeoValue;
+                // If the geomaps are selected by the used - follow the logic below 
+                if ( oEvent.mParameters.selectedItemId == geographicMap_1_path || oEvent.mParameters.selectedItemId == geographicMap2_path) {
+                    // Set the Panel of keys to Visible
+                    this._onGetViewById('idListPanelGeoMap001').setVisible(true)
+                    if ( oEvent.mParameters.selectedItemId == geographicMap_1_path) {
+                        this._onGetViewById('idLegendStokColor').setVisible(true)
+                        this._onGetViewById('idLegendConformityColor').setVisible(false)
+                    } else {
+                        this._onGetViewById('idLegendStokColor').setVisible(false)
+                        this._onGetViewById('idLegendConformityColor').setVisible(true)
+                    }
+                } else {
+                    // For other maps don't display this
+                    this._onGetViewById('idListPanelGeoMap001').setVisible(false)
+                }   
+                // Current Map selected By user
+                const currentMapSelected = null;
+                if (sap.ui.getCore().byId(geographicMap_1_path).isRendered()) {
+                    currentMapSelected = sap.ui.getCore().byId(geographicMap_1_path)
+                }
+                if (sap.ui.getCore().byId(geographicMap2_path).isRendered()) {
+                    currentMapSelected = sap.ui.getCore().byId(geographicMap2_path)
+                }
+                if (sap.ui.getCore().byId(analyticMap001_path).isRendered()) {
+                    currentMapSelected = sap.ui.getCore().byId(analyticMap001_path)
+                }
+                if (sap.ui.getCore().byId(analyticMap002_path).isRendered()) {
+                    currentMapSelected = sap.ui.getCore().byId(analyticMap002_path)
+                }
+
+                const currentMapZoomLevel = currentMapSelected.getZoomlevel();
+                const currentMapCenterPosition = currentMapSelected.getCenterPosition();
+                // Set THE mapUtil
+                myMapsUtil.setZoom(oEvent, mParameters.selectedItemId, currentMapZoomLevel, currentMapCenterPosition)
+            },
+            /**********************  Map Container Functions -- End ***************************/
+
             /**********************  Controller Private Functions -- Start ***************************/
             _onGetViewById: function (componentId) {
                 /** This function return the View by using the absolute Path to it, check the Component.js 
                  *  to see the paths defined there
                  */
                 return sap.ui.getCore().byId(`${sap.ui.getCore().AppContext.MainView}--${componentId}`);
-            }
+            },
+            _onGetMaps: function () {
+                /** Getting the Main view absolute path not the Filterbar View 
+                *  and by using the absolute ID we get our view > Check the Component.js File */
+                const aMap001_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap001`
+                const aMap002_path = `${sap.ui.getCore().AppContext.MainView}--analyticMap002`
+                const gMap1_path = `${sap.ui.getCore().AppContext.MainView}--geographicMap1`
+                const gMap2_path = `${sap.ui.getCore().AppContext.MainView}--geographicMap2`
+                // We get the view of the Map
+                const analyticalMap_001 = sap.ui.getCore().byId(aMap001_path);
+                const analyticalMap_002 = sap.ui.getCore().byId(aMap002_path);
+                const geographicMap_1 = sap.ui.getCore().byId(gMap1_path);
+                const geographicMap_2 = sap.ui.getCore().byId(gMap2_path);
+
+                return analyticalMap_001, analyticalMap_002, geographicMap_1, geographicMap_2
+            },
             /**********************  Controller Private Functions -- End ***************************/
 
 

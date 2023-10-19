@@ -8,9 +8,7 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
                 "../utils/myMapsUtil"], function (e, t, o, a, n, s, r, i) {
     "use strict";
     return e.extend("STK.smartstock.controller.globe", {
-        getSettingsPressed: function (e) {
-            var t = e.getSource()
-        },
+        
         onSearch: function (e) {
             var t = this.byId("mapContainer");
             t.setBusy(true);
@@ -237,56 +235,6 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
                 }
             });
             var A = sap.ui.getCore().AppContext.globeView.byId("idListPanelGeoMap001")
-        },
-        getSettingsPressed: function (e) {
-            console.log("settingsPressed")
-        },
-        clickMapContainer: function (e) {
-            console.log("clickMapContainer");
-            debugger;
-            
-            var parentID = e.mParameters.selectedItemId.substr(0,e.mParameters.selectedItemId.length - 14 );
-
-            var t = parentID + sap.ui.getCore().AppContext.MapAnalyticQuantity;
-            var o = parentID + sap.ui.getCore().AppContext.MapGeoQuantity;
-            var a = parentID + sap.ui.getCore().AppContext.MapGeoValue;
-            var n = parentID + sap.ui.getCore().AppContext.MapAnalyticValue;
-
-            if ( e.mParameters.selectedItemId == o || e.mParameters.selectedItemId == a) {
-                sap.ui.getCore().AppContext.globeView.byId("idListPanelGeoMap001").setVisible(true);
-                if ( e.mParameters.selectedItemId == o) {
-                    sap.ui.getCore().AppContext.globeView.byId("idLegendStokColor").setVisible(true);
-                    sap.ui.getCore().AppContext.globeView.byId("idLegendConformityColor").setVisible(false)
-                } else {
-                    sap.ui.getCore().AppContext.globeView.byId("idLegendStokColor").setVisible(false);
-                    sap.ui.getCore().AppContext.globeView.byId("idLegendConformityColor").setVisible(true)
-                }
-            } else {
-                sap.ui.getCore().AppContext.globeView.byId("idListPanelGeoMap001").setVisible(false)
-            }
-            var s;
-            if (sap.ui.getCore().byId(o).isRendered()) {
-                s = sap.ui.getCore().byId(o)
-            }
-            if (sap.ui.getCore().byId(a).isRendered()) {
-                s = sap.ui.getCore().byId(a)
-            }
-            if (sap.ui.getCore().byId(t).isRendered()) {
-                s = sap.ui.getCore().byId(t)
-            }
-            if (sap.ui.getCore().byId(n).isRendered()) {
-                s = sap.ui.getCore().byId(n)
-            }
-            var r = s.getZoomlevel();
-            var l = s.getCenterPosition();
-            i.setZoom(e.mParameters.selectedItemId, r, l)
-        },
-        geoMap001CenterChanged: function (e) {},
-        geoMap001ZoomChanged: function (e) {},
-        geoMap002CenterChanged: function (e) {},
-        geoMap002ZoomChanged: function (e) {},
-        pieItemclick: function (e) {
-            console.log(e)
         },
         onSelectdisplayMode: function (e) {
             var t = e.getSource().getSelectedItem();

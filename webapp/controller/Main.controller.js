@@ -90,6 +90,7 @@ sap.ui.define([
                 // Flag variables
                 let n = 0
                 let s = 0
+                
                 oModel.read('/PlantStockDataSet', {
                     filters: [filter_country, filter_plant, filter_materialType, filter_material, filter_stockType, filter_vendor, filter_customer],
                     success: function (oData) {
@@ -104,19 +105,22 @@ sap.ui.define([
                         that._onGetViewById('sConformityPies').removeAllItems()
                         // Logic Below
                         console.log(oData); // TO BE REMOVED
+                        // debugger
                         // Check if there is some data coming from the backend !
                         if (oData.results.length > 0) {
                             oData.results.map((element, index) => {
                                 const address = element.Address
                                 if (address) {
                                     const xmlHttpRequest = new XMLHttpRequest()
+                                    
                                     const apiKey = sap.ui.getCore().AppContext.HereApiKey;
                                     const geoCoderLink = sap.ui.getCore().AppContext.HereGeocoderLink;
                                     // Prepare URI
-                                    const uriAPI = `${geoCoderLink}&apikey=${apiKey}&searchtext${address}`
+                                    const uriAPI = `${geoCoderLink}?apikey=${apiKey}&searchtext=${address.trim().split(" ").join("+")}`
                                     console.log(uriAPI); // To be removed
 
                                     xmlHttpRequest.open('GET', uriAPI, false)
+                                    debugger
                                     xmlHttpRequest.send()
                                     console.log("Labels : " + xmlHttpRequest.responseText);
 

@@ -28,7 +28,12 @@ sap.ui.define([
                 oDeviceModel.setDefaultBindingMode("OneWay")
                 this.getView().setModel(oDeviceModel, "device")
 
-                console.log(this.getView());
+                window.myvRenderGeoMapAuto = "M"
+                Window.myvRenderGeoMapAuto = "M";
+
+                
+
+                // console.log(this._onGetViewById('geographicMap1').isRendered());
             },
             onAfterRendering: function () {
                 /**  Description : 
@@ -44,9 +49,12 @@ sap.ui.define([
                 console.log(that.getView().byId("analyticMap001"));
                 this.getView().attachAfterInit(function (that) {
                     // All components in the view have been loaded, and this code will execute only once.
-                    myMapsUtil.setMap(that)
-                    window.myvRenderGeoMapAuto = "M"
+                    myMapsUtil.setMap(this)
+                    // window.myvRenderGeoMapAuto = "M"
+                    // Window.myvRenderGeoMapAuto = "M";
                     sap.ui.getCore().AppContext.globeView = that.getView();
+
+                    // console.log(this._onGetViewById('geographicMap1').isRendered());
 
                 });
             },
@@ -79,6 +87,9 @@ sap.ui.define([
                 // Getting the views 
                 const sStockCirclesQuantity = this._onGetViewById('sStockCirclesQuantity')
                 const sStockCirclesValue = this._onGetViewById('sStockCirclesValue')
+                // Flag variables
+                let n = 0
+                let s = 0
                 oModel.read('/PlantStockDataSet', {
                     filters: [filter_country, filter_plant, filter_materialType, filter_material, filter_stockType, filter_vendor, filter_customer],
                     success: function (oData) {
@@ -137,7 +148,7 @@ sap.ui.define([
                                         )
 
                                         // Adding some logic
-                                        let n = 0
+                                        
                                         let fieldValue = ""
                                         if (element.TotalStock.replace(/\s/g, "") > 0) {
                                             n++;
@@ -209,7 +220,7 @@ sap.ui.define([
                                         }
 
                                         // ConformityKey logic
-                                        let s = 0
+                                        
                                         if (element.ConformityKey != "") {
                                             s++
                                             const conformityPie = new sap.ui.vbm.Pie({
@@ -306,7 +317,7 @@ sap.ui.define([
                         // if (oData.results.length == 1) {
                         //     oData.results[0].Land1
                         // }
-                        var E = sap.ui.getCore().AppContext.globeView.byId("mapContainer");
+                        // var E = sap.ui.getCore().AppContext.globeView.byId("mapContainer");
                         mapContainer.setBusy(false)
 
                     },
@@ -606,6 +617,9 @@ sap.ui.define([
             /**********************  Map Container Functions -- Start ***************************/
             onClickMapContainer: function (oEvent) {
                 console.log('ClickMapContainer fired ! '); // To be removed
+                // Call the configuration of the MAPS
+                myMapsUtil.setMap(this)
+                // debugger;
                 // Get parent ID 
                 const parentID = oEvent.mParameters.selectedItemId.substr(0, oEvent.mParameters.selectedItemId.length - 14);
                 console.log(parentID); // To be removed
@@ -631,7 +645,7 @@ sap.ui.define([
                 }
                 // Current Map selected By user
                 let currentMapSelected = null;
-                if (sap.ui.getCore().byId(geographicMap_1_path).isRendered()) {
+                if (this._onGetViewById('geographicMap1')) {
                     currentMapSelected = sap.ui.getCore().byId(geographicMap_1_path)
                 }
                 if (sap.ui.getCore().byId(geographicMap2_path).isRendered()) {
@@ -647,7 +661,7 @@ sap.ui.define([
                 const currentMapZoomLevel = currentMapSelected.getZoomlevel();
                 const currentMapCenterPosition = currentMapSelected.getCenterPosition();
                 // Set THE mapUtil
-                myMapsUtil.setZoom(oEvent, mParameters.selectedItemId, currentMapZoomLevel, currentMapCenterPosition)
+                myMapsUtil.setZoom(oEvent.mParameters.selectedItemId, currentMapZoomLevel, currentMapCenterPosition)
             },
             sCustomerSpotsContextMenu: function (oEvent) {
                 console.log('sCustomerSpotsContextMenu fired !'); // To be removed

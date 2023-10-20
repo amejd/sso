@@ -113,16 +113,21 @@ sap.ui.define(["../utils/myMapsUtil"], function (e) {
                 }
                 ]
             };
-            var s = e.getView().byId("geographicMap2");
+            var s = ea.getView().byId("geographicMap2");
             s.setMapConfiguration(i);
             s.setRefMapLayerStack("Google")
         },
-        setZoom: async function (e, t, a) {
+        setZoom: async function (t, a, x) {
+            /** 
+             *  t = AbsolutePath of the selected Map
+             *  a = currentMapZoomLevel taken from the previous map
+             *  x = currentMapCenterPosition taken from the previous map
+             */
             setTimeout(() => {
                 myvRenderGeoMapAuto = "Y";
-                var o = sap.ui.getCore().byId(e);
-                o.setCenterPosition(a);
-                o.setZoomlevel(t);
+                var o = sap.ui.getCore().byId(t);
+                o.setCenterPosition(x);
+                o.setZoomlevel(a);
                 myvRenderGeoMapAuto = "N"
             }, 100)
         },

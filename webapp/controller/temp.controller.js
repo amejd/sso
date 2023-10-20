@@ -26,7 +26,9 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
             var m = i.getSelectedKey();
             var y = l.getSelectedKey();
             var b = g.getSelectedKey();
+
             var C = "/PlantStockDataSet";
+            
             var v = new sap.ui.model.Filter("Land1", sap.ui.model.FilterOperator.EQ, c);
             var I = new sap.ui.model.Filter("Werks", sap.ui.model.FilterOperator.EQ, u);
             var M = new sap.ui.model.Filter("Mtart", sap.ui.model.FilterOperator.EQ, p);
@@ -101,6 +103,7 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
                                     if (e.results[i].Retme.replace(/\s/g, "") > 0) {
                                         b = b + "\n{i18n>RETME} : " + e.results[i].Retme.replace(/\s/g, "")
                                     }
+                                    
                                     var C = new sap.ui.vbm.Pie({
                                         scale: "3;1;1",
                                         position: m + ";" + y + ";0",
@@ -161,6 +164,7 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
                                             o.key = v[f];
                                             o.label = I[f];
                                             a.push(o);
+
                                             if (v[f] == "ZZ") {
                                                 k = k + "\n" + I[f] + " : " + M[f].replace(/\s/g, "")
                                             } else {
@@ -185,6 +189,8 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
                             }
                         }
                     }
+
+                    // kk
                     var h = sap.ui.getCore().AppContext.globeView.byId("idLegendConformityColor");
                     h.removeAllItems();
                     h.addItem(new sap.m.GroupHeaderListItem({
@@ -210,6 +216,7 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
                         h.addItem(V);
                         f = v.length
                     }
+                    // HH
                     if (n == 0) {
                         var x = "Warning \r\n No stock found for this selection.";
                         r.show(x)
@@ -218,6 +225,8 @@ sap.ui.define([ "sap/ui/core/mvc/Controller",
                         var x = "Warning \r\n No quality inspection stock found for this selection.";
                         r.show(x)
                     }
+
+                    
                     sap.ui.getCore().AppContext.globeView.byId("idCustomerQuantityRoute").setPosition("");
                     sap.ui.getCore().AppContext.globeView.byId("idCustomerConformityRoute").setPosition("");
                     if (e.results.length == 1) {

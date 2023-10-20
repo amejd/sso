@@ -47,7 +47,7 @@ sap.ui.define([
 
                 // Views Global Declaration
                 sap.ui.getCore().AppContext.MainView = "application-smartstock-display-component---Main"
-                sap.ui.getCore().AppContext.FilterBarView = "application-smartstock-display-component---Main--Filterbar"
+                sap.ui.getCore().AppContext.FilterBarView = "application-smartstock-display-component---Main--filterbarview"
             }
         });
     }

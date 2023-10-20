@@ -4,6 +4,7 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/ui/Device",
     "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
     "sap/ui/core/Fragment",
     "sap/m/MessageToast",
     "../utils/myMapsUtil"
@@ -11,7 +12,7 @@ sap.ui.define([
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, AnalyticalMap, JSONModel, Device, Filter, Fragment, MessageToast, myMapsUtil) {
+    function (Controller, AnalyticalMap, JSONModel, Device, Filter, FilterOperator, Fragment, MessageToast, myMapsUtil) {
         "use strict";
 
         return Controller.extend("smartstock.controller.Main", {
@@ -52,6 +53,269 @@ sap.ui.define([
             /**********************  Filter Bar Functions -- Start  ************************/
             onSearch: function () {
                 console.log('Go button clicked !'); // To be removed 
+                // Get mapcontainer view
+                const mapContainer = this._onGetViewById('mapContainer')
+                mapContainer.setBusy(true)
+                // Get all input values
+                const i_country = this.byId('sCountry').getSelectedKey()
+                const i_plant = this.byId('sPlant').getSelectedKey();
+                const i_materialType = this.byId('sMaterialtType').getSelectedKey();
+                const i_material = this.byId('sMaterial').getSelectedKey();
+                const i_stockType = this.byId('sStockType').getSelectedKey();
+                const i_vendor = this.byId('sVendor').getSelectedKey();
+                const i_customer = this.byId('sCustomer').getSelectedKey();
+                // Preparing filter values
+                const filter_country = new Filter("Land1", FilterOperator.EQ, i_country);
+                const filter_plant = new Filter("Werks", FilterOperator.EQ, i_plant);
+                const filter_materialType = new Filter("Mtart", FilterOperator.EQ, i_materialType);
+                const filter_material = new Filter("Matnr", FilterOperator.EQ, i_material);
+                const filter_stockType = new Filter("StockType", FilterOperator.EQ, i_stockType);
+                const filter_vendor = new Filter("Lifnr", FilterOperator.EQ, i_vendor);
+                const filter_customer = new Filter("Kunnr", FilterOperator.EQ, i_customer);
+                // Get the Model
+                const oModel = this.getOwnerComponent().getModel()
+                // Scope def
+                const that = this
+                // Getting the views 
+                const sStockCirclesQuantity = this._onGetViewById('sStockCirclesQuantity')
+                const sStockCirclesValue = this._onGetViewById('sStockCirclesValue')
+                oModel.read('/PlantStockDataSet', {
+                    filters: [filter_country, filter_plant, filter_materialType, filter_material, filter_stockType, filter_vendor, filter_customer],
+                    success: function (oData) {
+                        // Declare variables 
+                        let g_array = []
+                        let g_object = {}
+                        // Get related views and remove all items
+                        that._onGetViewById('sStockLabels').removeAllItems()
+                        that._onGetViewById('sStockCirclesQuantity').removeAllItems()
+                        that._onGetViewById('sStockCirclesValue').removeAllItems()
+                        that._onGetViewById('sQuantityPies').removeAllItems()
+                        that._onGetViewById('sConformityPies').removeAllItems()
+                        // Logic Below
+                        console.log(oData); // TO BE REMOVED
+                        // Check if there is some data coming from the backend !
+                        if (oData.results.length > 0) {
+                            oData.results.map((element, index) => {
+                                const address = element.Address
+                                if (address) {
+                                    const xmlHttpRequest = new XMLHttpRequest()
+                                    const apiKey = sap.ui.getCore().AppContext.HereApiKey;
+                                    const geoCoderLink = sap.ui.getCore().AppContext.HereGeocoderLink;
+                                    // Prepare URI
+                                    const uriAPI = `${geoCoderLink}&apikey=${apiKey}&searchtext${address}`
+                                    console.log(uriAPI); // To be removed
+
+                                    xmlHttpRequest.open('GET', uriAPI, false)
+                                    xmlHttpRequest.send()
+                                    console.log("Labels : " + xmlHttpRequest.responseText);
+
+                                    try {
+                                        const apiResponse = JSON.parse(XMLHttpRequest.responseText)
+                                        const Longitude = apiResponse.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
+                                        const Latitude = apiResponse.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
+
+                                        // Set item to views
+                                        sStockCirclesQuantity.addItem(
+                                            new sap.ui.vbm.Circle({
+                                                radius: element.QuantityValue.replace(/\s/g, ""),
+                                                tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address + "\nStock quantity : " + element.TotalStock.replace(/\s/g, ""),
+                                                color: "rgba(92,186,230,0.6)",
+                                                colorBorder: "rgb(255,255,255)",
+                                                hotDeltaColor: "rgba(92,186,230,0.8)",
+                                                position: Longitude + ";" + Latitude + ";0"
+                                            })
+                                        )
+                                        sStockCirclesValue.addItem(
+                                            new sap.ui.vbm.Circle({
+                                                radius: element.ValuatedValue.replace(/\s/g, ""),
+                                                tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address + "\nStock value: " + element.TotalValuated.replace(/\s/g, ""),
+                                                color: "rgba(92,186,230,0.6)",
+                                                colorBorder: "rgb(255,255,255)",
+                                                hotDeltaColor: "rgba(92,186,230,0.8)",
+                                                position: Longitude + ";" + Latitude + ";0"
+                                            })
+                                        )
+
+                                        // Adding some logic
+                                        let n = 0
+                                        let fieldValue = ""
+                                        if (element.TotalStock.replace(/\s/g, "") > 0) {
+                                            n++;
+                                            if (element.Labst.replace(/\s/g, "") > 0) {
+                                                fieldValue = fieldValue + "\n{i18n>LABST} : " + element.Labst.replace(/\s/g, "")
+                                            }
+
+                                            if (element.Umlme.replace(/\s/g, "") > 0) {
+                                                fieldValue = fieldValue + "\n{i18n>UMLME} : " + element.Umlme.replace(/\s/g, "")
+                                            }
+
+                                            if (element.Insme.replace(/\s/g, "") > 0) {
+                                                fieldValue = fieldValue + "\n{i18n>INSME} : " + element.Insme.replace(/\s/g, "")
+                                            }
+                                            if (element.Einme.replace(/\s/g, "") > 0) {
+                                                fieldValue = fieldValue + "\n{i18n>EINME} : " + element.Einme.replace(/\s/g, "")
+                                            }
+                                            if (element.Speme.replace(/\s/g, "") > 0) {
+                                                fieldValue = fieldValue + "\n{i18n>SPEME} : " + element.Speme.replace(/\s/g, "")
+                                            }
+                                            if (element.Retme.replace(/\s/g, "") > 0) {
+                                                fieldValue = fieldValue + "\n{i18n>RETME} : " + element.Retme.replace(/\s/g, "")
+                                            }
+
+                                            // Creating the PIE
+                                            const pie = new sap.ui.vbm.Pie({
+                                                scale: "3;1;1",
+                                                position: Longitude + ";" + Latitude + ";0",
+                                                tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address + fieldValue,
+                                                key: element.Werks
+                                            });
+                                            pie.addItem(
+                                                new sap.ui.vbm.PieItem({
+                                                    color: "{i18n>colorLABST}",
+                                                    name: "{i18n>LABST}",
+                                                    value: element.Labst.replace(/\s/g, "")
+                                                })
+                                            )
+                                            pie.addItem(new sap.ui.vbm.PieItem({
+                                                color: "{i18n>colorEINME}",
+                                                name: "{i18n>EINME}",
+                                                value: element.Einme.replace(/\s/g, ""),
+                                                // click: function (e) {
+                                                //     console.log("var Pie = new sap.ui.vbm.Pie({ ")
+                                                // }
+                                            }));
+                                            pie.addItem(new sap.ui.vbm.PieItem({
+                                                color: "{i18n>colorSPEME}",
+                                                name: "{i18n>SPEME}",
+                                                value: element.Speme.replace(/\s/g, "")
+                                            }));
+                                            pie.addItem(new sap.ui.vbm.PieItem({
+                                                color: "{i18n>colorINSME}",
+                                                name: "{i18n>INSME}",
+                                                value: element.Insme.replace(/\s/g, "")
+                                            }));
+                                            pie.addItem(new sap.ui.vbm.PieItem({
+                                                color: "{i18n>colorRETME}",
+                                                name: "{i18n>RETME}",
+                                                value: element.Retme.replace(/\s/g, "")
+                                            }));
+                                            pie.addItem(new sap.ui.vbm.PieItem({
+                                                color: "{i18n>colorUMLME}",
+                                                name: "{i18n>UMLME}",
+                                                value: element.Umlme.replace(/\s/g, "")
+                                            }));
+                                            // Add Pie to the view
+                                            that._onGetViewById('sQuantityPies').addItem(pie)
+                                        }
+
+                                        // ConformityKey logic
+                                        let s = 0
+                                        if (element.ConformityKey != "") {
+                                            s++
+                                            const conformityPie = new sap.ui.vbm.Pie({
+                                                scale: "3;1;1",
+                                                position: Longitude + ";" + Latitude + ";0",
+                                                tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address,
+                                                key: element.Werks
+                                            });
+
+                                            const conformityKey = element.ConformityKey.split("|");
+                                            const conformityLabel = element.ConformityLabel.split("|");
+                                            const conformityValue = element.ConformityValue.split("|");
+
+                                            conformityKey.map((key, idx) => {
+                                                // Pay attention to the key -- Starting from 1
+                                                if (conformityValue[idx].replace(/\s/g, "") > 0) {
+                                                    let object = {}
+                                                    object.key = key
+                                                    object.label = conformityLabel[idx]
+                                                    g_array.push(object)
+
+                                                    let tooltipValueToAdd = ''
+                                                    if (key == "ZZ") {
+                                                        tooltipValueToAdd = tooltipValueToAdd + "\n" + conformityLabel[idx] + " : " + conformityValue[idx].replace(/\s/g, "")
+                                                    } else {
+                                                        tooltipValueToAdd = tooltipValueToAdd + "\n" + conformityKey[idx] + " - " + conformityLabel[idx] + " : " + conformityValue[idx].replace(/\s/g, "")
+                                                    }
+
+                                                    conformityPie.addItem(
+                                                        new sap.ui.vbm.PieItem({
+                                                            color: sap.ui.getCore().byId("application-smartstock-display-component---Main").getModel("i18n").getProperty(conformityKey[idx]),
+                                                            name: conformityLabel[idx],
+                                                            value: conformityValue[idx]
+                                                        })
+                                                    )
+                                                }
+                                            })
+
+                                            var P = "Plant : " + element.Name1 + "\nAdresse : " + element.Address + tooltipValueToAdd;
+                                            conformityPie.setTooltip(P);
+                                            if (conformityPie.getItems().length != 0) {
+                                                that._onGetViewById('sConformityPies').addItem(conformityPie)
+                                            }
+                                        }
+
+                                    } catch (error) {
+                                        console.log(error);
+                                    }
+
+                                }
+                            })
+                        }
+
+                        // Another part 
+                        const legendConformityColor = that._onGetViewById('idLegendConformityColor')
+                        legendConformityColor.removeAllItems()
+                        legendConformityColor.addItem(
+                            new sap.m.GroupHeaderListItem({
+                                title: "Conforminty values",
+                                upperCase: false
+                            })
+                        )
+                        g_array = g_array.sort((e, t) => {
+                            return e.key.localeCompare(t.key)
+                        })
+                        g_array = Array.from(new Set(g_array.map(e => JSON.stringify(e)))).map(e => JSON.parse(e));
+                        let labelLegendItem = ''
+                        g_array.map((gelem, gidx) => {
+                            if (gidx == g_array.length - 1) {
+                                labelLegendItem = gelem.label
+                            } else {
+                                labelLegendItem = gelem.key + " : " + gelem.label
+                            }
+                            const legentItem = new sap.ui.vk.LegendItem({
+                                title: labelLegendItem,
+                                color: sap.ui.getCore().byId("application-smartstock-display-component---Main").getModel("i18n").getProperty(gelem.key),
+                            });
+                            legendConformityColor.addItem(legentItem);
+                            const conformityKeyLength = conformityKey.length
+                        })
+
+                        if (n == 0) {
+                            const msgToShow = "Warning \r\n No stock found for this selection.";
+                            MessageToast.show(msgToShow)
+                        }
+                        if (s == 0) {
+                            const msgToShow = "Warning \r\n No quality inspection stock found for this selection.";
+                            MessageToast.show(msgToShow)
+                        }
+
+
+                        that._onGetViewById('idCustomerQuantityRoute').setPosition("");
+                        that._onGetViewById("idCustomerConformityRoute").setPosition("");
+                        // if (oData.results.length == 1) {
+                        //     oData.results[0].Land1
+                        // }
+                        var E = sap.ui.getCore().AppContext.globeView.byId("mapContainer");
+                        mapContainer.setBusy(false)
+
+                    },
+                    error: function (oError) {
+                        var aMsg = "Error \r\n Communication to the server failed.";
+                        MessageToast.show(aMsg);
+                        mapContainer.setBusy(false)
+                    }
+                })
             },
             onReset: function () {
                 console.log('Reset button clicked !'); // To be removed
@@ -340,10 +604,10 @@ sap.ui.define([
             /**********************  Filter Bar Functions -- End ***************************/
 
             /**********************  Map Container Functions -- Start ***************************/
-            onClickMapContainer: function(oEvent){
+            onClickMapContainer: function (oEvent) {
                 console.log('ClickMapContainer fired ! '); // To be removed
                 // Get parent ID 
-                const parentID = oEvent.mParameters.selectedItemId.substr(0,oEvent.mParameters.selectedItemId.length - 14 );
+                const parentID = oEvent.mParameters.selectedItemId.substr(0, oEvent.mParameters.selectedItemId.length - 14);
                 console.log(parentID); // To be removed
                 // Get path of all maps using the ParentID
                 const analyticMap001_path = parentID + sap.ui.getCore().AppContext.MapAnalyticQuantity;
@@ -351,10 +615,10 @@ sap.ui.define([
                 const geographicMap_1_path = parentID + sap.ui.getCore().AppContext.MapGeoQuantity;
                 const geographicMap2_path = parentID + sap.ui.getCore().AppContext.MapGeoValue;
                 // If the geomaps are selected by the used - follow the logic below 
-                if ( oEvent.mParameters.selectedItemId == geographicMap_1_path || oEvent.mParameters.selectedItemId == geographicMap2_path) {
+                if (oEvent.mParameters.selectedItemId == geographicMap_1_path || oEvent.mParameters.selectedItemId == geographicMap2_path) {
                     // Set the Panel of keys to Visible
                     this._onGetViewById('idListPanelGeoMap001').setVisible(true)
-                    if ( oEvent.mParameters.selectedItemId == geographicMap_1_path) {
+                    if (oEvent.mParameters.selectedItemId == geographicMap_1_path) {
                         this._onGetViewById('idLegendStokColor').setVisible(true)
                         this._onGetViewById('idLegendConformityColor').setVisible(false)
                     } else {
@@ -364,9 +628,9 @@ sap.ui.define([
                 } else {
                     // For other maps don't display this
                     this._onGetViewById('idListPanelGeoMap001').setVisible(false)
-                }   
+                }
                 // Current Map selected By user
-                const currentMapSelected = null;
+                let currentMapSelected = null;
                 if (sap.ui.getCore().byId(geographicMap_1_path).isRendered()) {
                     currentMapSelected = sap.ui.getCore().byId(geographicMap_1_path)
                 }
@@ -385,7 +649,7 @@ sap.ui.define([
                 // Set THE mapUtil
                 myMapsUtil.setZoom(oEvent, mParameters.selectedItemId, currentMapZoomLevel, currentMapCenterPosition)
             },
-            sCustomerSpotsContextMenu: function(oEvent){
+            sCustomerSpotsContextMenu: function (oEvent) {
                 console.log('sCustomerSpotsContextMenu fired !'); // To be removed
                 console.log(oEvent); // To be removed
                 const source = oEvent.getSource();
@@ -419,24 +683,24 @@ sap.ui.define([
                     this._oPopover.openBy(source)
                 }
             },
-            onSelectdisplayMode : function(oEvent){
+            onSelectdisplayMode: function (oEvent) {
                 var selectedMode = oEvent.getSource().getSelectedItem();
                 var mapContainer = this._onGetViewById('mapContainer')
                 let flag = 0;
                 switch (selectedMode.getKey()) {
-                case "quantityAnalytic":
-                    flag = 0;
-                    break;
-                case "quantityGeo":
-                    flag = 1;
-                    break;
-                case "conformity":
-                    flag = 2;
-                    break;
-                case "stockValue":
-                    flag = 3;
-                    break;
-                default:
+                    case "quantityAnalytic":
+                        flag = 0;
+                        break;
+                    case "quantityGeo":
+                        flag = 1;
+                        break;
+                    case "conformity":
+                        flag = 2;
+                        break;
+                    case "stockValue":
+                        flag = 3;
+                        break;
+                    default:
                 }
                 const selectedContent = mapContainer.getSelectedContent().getContent();
                 mapContainer.setSelectedContent(mapContainer.getContent()[flag]);
@@ -449,11 +713,15 @@ sap.ui.define([
             /**********************  Map Container Functions -- End ***************************/
 
             /**********************  Controller Private Functions -- Start ***************************/
-            _onGetViewById: function (componentId) {
+            _onGetViewById: function (componentId, filterbarview = false) {
                 /** This function return the View by using the absolute Path to it, check the Component.js 
                  *  to see the paths defined there
                  */
-                return sap.ui.getCore().byId(`${sap.ui.getCore().AppContext.MainView}--${componentId}`);
+                if (!filterbarview) {
+                    return sap.ui.getCore().byId(`${sap.ui.getCore().AppContext.MainView}--${componentId}`);
+                } else {
+                    return sap.ui.getCore().byId(`${sap.ui.getCore().AppContext.FilterBarView}--${componentId}`);
+                }
             },
             _onGetMaps: function () {
                 /** Getting the Main view absolute path not the Filterbar View 
@@ -470,6 +738,14 @@ sap.ui.define([
 
                 return analyticalMap_001, analyticalMap_002, geographicMap_1, geographicMap_2
             },
+            _onCreatePie: function (scale, longitude, latitude, tooltip, key) {
+                return new sap.ui.vbm.Pie({
+                    scale: scale,
+                    position: longitude + ";" + latitude + ";0",
+                    tooltip: tooltip,
+                    key: key
+                });
+            }
             /**********************  Controller Private Functions -- End ***************************/
 
 

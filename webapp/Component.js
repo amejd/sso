@@ -38,7 +38,7 @@ sap.ui.define([
                 sap.ui.getCore().AppContext.HereApiKey = "qZn4Oejg6GJhFAGgOkEJpCBQYXqSrzX41hIPZpxBGBc";
                 sap.ui.getCore().AppContext.HereGeocoderLink = "https://geocoder.ls.hereapi.com/6.2/geocode.json?xnlp=CL_JSMv3.1.9.0";
                 sap.ui.getCore().AppContext.HereCalculateRouteLink = "https://route.ls.hereapi.com/routing/7.2/calculateroute.json?";
-
+                sap.ui.getCore().AppContext.newAPI = 'https://geocode.maps.co/search?q='
                 // Maps 
                 sap.ui.getCore().AppContext.MapAnalyticQuantity = "analyticMap001";
                 sap.ui.getCore().AppContext.MapGeoQuantity		= "geographicMap1";

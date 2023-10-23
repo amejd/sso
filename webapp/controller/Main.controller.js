@@ -31,7 +31,7 @@ sap.ui.define([
                 window.myvRenderGeoMapAuto = "M"
                 Window.myvRenderGeoMapAuto = "M";
 
-                
+
 
                 // console.log(this._onGetViewById('geographicMap1').isRendered());
             },
@@ -90,7 +90,7 @@ sap.ui.define([
                 // Flag variables
                 let n = 0
                 let s = 0
-                
+
                 oModel.read('/PlantStockDataSet', {
                     filters: [filter_country, filter_plant, filter_materialType, filter_material, filter_stockType, filter_vendor, filter_customer],
                     success: function (oData) {
@@ -106,172 +106,176 @@ sap.ui.define([
                         // Logic Below
                         console.log(oData); // TO BE REMOVED
                         // debugger
+                        // Global variables for handling Scope definitions
+                        const conformityKey = null
+                        const conformityLabel = null
+                        const conformityValue = null
                         // Check if there is some data coming from the backend !
                         if (oData.results.length > 0) {
                             oData.results.map((element, index) => {
                                 const address = element.Address
                                 if (address) {
                                     const xmlHttpRequest = new XMLHttpRequest()
-                                    
-                                    const apiKey = sap.ui.getCore().AppContext.HereApiKey;
-                                    const geoCoderLink = sap.ui.getCore().AppContext.HereGeocoderLink;
                                     // Prepare URI
-                                    const uriAPI = `${geoCoderLink}?apikey=${apiKey}&searchtext=${address.trim().split(" ").join("+")}`
-                                    console.log(uriAPI); // To be removed
-
-                                    xmlHttpRequest.open('GET', uriAPI, false)
-                                    debugger
+                                    const newAPI = `${sap.ui.getCore().AppContext.newAPI}${address.trim().split(" ").join("+")}`
+                                    // Send the request
+                                    xmlHttpRequest.open('GET', newAPI, false)
                                     xmlHttpRequest.send()
-                                    console.log("Labels : " + xmlHttpRequest.responseText);
+                                    
+                                    // Get the response and convert it from string to json
+                                    const apiResponse = JSON.parse(xmlHttpRequest.responseText)
+                                    // Execute try catch only if the response is not empty for that element
+                                    if (JSON.parse(xmlHttpRequest.responseText).length > 0) {
+                                        try {
+                                            const Longitude = apiResponse.length > 0 ? apiResponse[0].lon : ''
+                                            const Latitude = apiResponse.length > 0 ? apiResponse[0].lat : ''
 
-                                    try {
-                                        const apiResponse = JSON.parse(XMLHttpRequest.responseText)
-                                        const Longitude = apiResponse.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
-                                        const Latitude = apiResponse.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
+                                            console.log('Longiture ' + Longitude + ' Latitude ' + Latitude);
 
-                                        // Set item to views
-                                        sStockCirclesQuantity.addItem(
-                                            new sap.ui.vbm.Circle({
-                                                radius: element.QuantityValue.replace(/\s/g, ""),
-                                                tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address + "\nStock quantity : " + element.TotalStock.replace(/\s/g, ""),
-                                                color: "rgba(92,186,230,0.6)",
-                                                colorBorder: "rgb(255,255,255)",
-                                                hotDeltaColor: "rgba(92,186,230,0.8)",
-                                                position: Longitude + ";" + Latitude + ";0"
-                                            })
-                                        )
-                                        sStockCirclesValue.addItem(
-                                            new sap.ui.vbm.Circle({
-                                                radius: element.ValuatedValue.replace(/\s/g, ""),
-                                                tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address + "\nStock value: " + element.TotalValuated.replace(/\s/g, ""),
-                                                color: "rgba(92,186,230,0.6)",
-                                                colorBorder: "rgb(255,255,255)",
-                                                hotDeltaColor: "rgba(92,186,230,0.8)",
-                                                position: Longitude + ";" + Latitude + ";0"
-                                            })
-                                        )
-
-                                        // Adding some logic
-                                        
-                                        let fieldValue = ""
-                                        if (element.TotalStock.replace(/\s/g, "") > 0) {
-                                            n++;
-                                            if (element.Labst.replace(/\s/g, "") > 0) {
-                                                fieldValue = fieldValue + "\n{i18n>LABST} : " + element.Labst.replace(/\s/g, "")
-                                            }
-
-                                            if (element.Umlme.replace(/\s/g, "") > 0) {
-                                                fieldValue = fieldValue + "\n{i18n>UMLME} : " + element.Umlme.replace(/\s/g, "")
-                                            }
-
-                                            if (element.Insme.replace(/\s/g, "") > 0) {
-                                                fieldValue = fieldValue + "\n{i18n>INSME} : " + element.Insme.replace(/\s/g, "")
-                                            }
-                                            if (element.Einme.replace(/\s/g, "") > 0) {
-                                                fieldValue = fieldValue + "\n{i18n>EINME} : " + element.Einme.replace(/\s/g, "")
-                                            }
-                                            if (element.Speme.replace(/\s/g, "") > 0) {
-                                                fieldValue = fieldValue + "\n{i18n>SPEME} : " + element.Speme.replace(/\s/g, "")
-                                            }
-                                            if (element.Retme.replace(/\s/g, "") > 0) {
-                                                fieldValue = fieldValue + "\n{i18n>RETME} : " + element.Retme.replace(/\s/g, "")
-                                            }
-
-                                            // Creating the PIE
-                                            const pie = new sap.ui.vbm.Pie({
-                                                scale: "3;1;1",
-                                                position: Longitude + ";" + Latitude + ";0",
-                                                tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address + fieldValue,
-                                                key: element.Werks
-                                            });
-                                            pie.addItem(
-                                                new sap.ui.vbm.PieItem({
-                                                    color: "{i18n>colorLABST}",
-                                                    name: "{i18n>LABST}",
-                                                    value: element.Labst.replace(/\s/g, "")
+                                            // Set item to views
+                                            sStockCirclesQuantity.addItem(
+                                                new sap.ui.vbm.Circle({
+                                                    radius: element.QuantityValue.replace(/\s/g, ""),
+                                                    tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address + "\nStock quantity : " + element.TotalStock.replace(/\s/g, ""),
+                                                    color: "rgba(92,186,230,0.6)",
+                                                    colorBorder: "rgb(255,255,255)",
+                                                    hotDeltaColor: "rgba(92,186,230,0.8)",
+                                                    position: Longitude + ";" + Latitude + ";0"
                                                 })
                                             )
-                                            pie.addItem(new sap.ui.vbm.PieItem({
-                                                color: "{i18n>colorEINME}",
-                                                name: "{i18n>EINME}",
-                                                value: element.Einme.replace(/\s/g, ""),
-                                                // click: function (e) {
-                                                //     console.log("var Pie = new sap.ui.vbm.Pie({ ")
-                                                // }
-                                            }));
-                                            pie.addItem(new sap.ui.vbm.PieItem({
-                                                color: "{i18n>colorSPEME}",
-                                                name: "{i18n>SPEME}",
-                                                value: element.Speme.replace(/\s/g, "")
-                                            }));
-                                            pie.addItem(new sap.ui.vbm.PieItem({
-                                                color: "{i18n>colorINSME}",
-                                                name: "{i18n>INSME}",
-                                                value: element.Insme.replace(/\s/g, "")
-                                            }));
-                                            pie.addItem(new sap.ui.vbm.PieItem({
-                                                color: "{i18n>colorRETME}",
-                                                name: "{i18n>RETME}",
-                                                value: element.Retme.replace(/\s/g, "")
-                                            }));
-                                            pie.addItem(new sap.ui.vbm.PieItem({
-                                                color: "{i18n>colorUMLME}",
-                                                name: "{i18n>UMLME}",
-                                                value: element.Umlme.replace(/\s/g, "")
-                                            }));
-                                            // Add Pie to the view
-                                            that._onGetViewById('sQuantityPies').addItem(pie)
-                                        }
+                                            sStockCirclesValue.addItem(
+                                                new sap.ui.vbm.Circle({
+                                                    radius: element.ValuatedValue.replace(/\s/g, ""),
+                                                    tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address + "\nStock value: " + element.TotalValuated.replace(/\s/g, ""),
+                                                    color: "rgba(92,186,230,0.6)",
+                                                    colorBorder: "rgb(255,255,255)",
+                                                    hotDeltaColor: "rgba(92,186,230,0.8)",
+                                                    position: Longitude + ";" + Latitude + ";0"
+                                                })
+                                            )
 
-                                        // ConformityKey logic
-                                        
-                                        if (element.ConformityKey != "") {
-                                            s++
-                                            const conformityPie = new sap.ui.vbm.Pie({
-                                                scale: "3;1;1",
-                                                position: Longitude + ";" + Latitude + ";0",
-                                                tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address,
-                                                key: element.Werks
-                                            });
+                                            // Adding some logic
 
-                                            const conformityKey = element.ConformityKey.split("|");
-                                            const conformityLabel = element.ConformityLabel.split("|");
-                                            const conformityValue = element.ConformityValue.split("|");
-
-                                            conformityKey.map((key, idx) => {
-                                                // Pay attention to the key -- Starting from 1
-                                                if (conformityValue[idx].replace(/\s/g, "") > 0) {
-                                                    let object = {}
-                                                    object.key = key
-                                                    object.label = conformityLabel[idx]
-                                                    g_array.push(object)
-
-                                                    let tooltipValueToAdd = ''
-                                                    if (key == "ZZ") {
-                                                        tooltipValueToAdd = tooltipValueToAdd + "\n" + conformityLabel[idx] + " : " + conformityValue[idx].replace(/\s/g, "")
-                                                    } else {
-                                                        tooltipValueToAdd = tooltipValueToAdd + "\n" + conformityKey[idx] + " - " + conformityLabel[idx] + " : " + conformityValue[idx].replace(/\s/g, "")
-                                                    }
-
-                                                    conformityPie.addItem(
-                                                        new sap.ui.vbm.PieItem({
-                                                            color: sap.ui.getCore().byId("application-smartstock-display-component---Main").getModel("i18n").getProperty(conformityKey[idx]),
-                                                            name: conformityLabel[idx],
-                                                            value: conformityValue[idx]
-                                                        })
-                                                    )
+                                            let fieldValue = ""
+                                            if (element.TotalStock.replace(/\s/g, "") > 0) {
+                                                n++;
+                                                if (element.Labst.replace(/\s/g, "") > 0) {
+                                                    fieldValue = fieldValue + "\n{i18n>LABST} : " + element.Labst.replace(/\s/g, "")
                                                 }
-                                            })
 
-                                            var P = "Plant : " + element.Name1 + "\nAdresse : " + element.Address + tooltipValueToAdd;
-                                            conformityPie.setTooltip(P);
-                                            if (conformityPie.getItems().length != 0) {
-                                                that._onGetViewById('sConformityPies').addItem(conformityPie)
+                                                if (element.Umlme.replace(/\s/g, "") > 0) {
+                                                    fieldValue = fieldValue + "\n{i18n>UMLME} : " + element.Umlme.replace(/\s/g, "")
+                                                }
+
+                                                if (element.Insme.replace(/\s/g, "") > 0) {
+                                                    fieldValue = fieldValue + "\n{i18n>INSME} : " + element.Insme.replace(/\s/g, "")
+                                                }
+                                                if (element.Einme.replace(/\s/g, "") > 0) {
+                                                    fieldValue = fieldValue + "\n{i18n>EINME} : " + element.Einme.replace(/\s/g, "")
+                                                }
+                                                if (element.Speme.replace(/\s/g, "") > 0) {
+                                                    fieldValue = fieldValue + "\n{i18n>SPEME} : " + element.Speme.replace(/\s/g, "")
+                                                }
+                                                if (element.Retme.replace(/\s/g, "") > 0) {
+                                                    fieldValue = fieldValue + "\n{i18n>RETME} : " + element.Retme.replace(/\s/g, "")
+                                                }
+
+                                                // Creating the PIE
+                                                const pie = new sap.ui.vbm.Pie({
+                                                    scale: "3;1;1",
+                                                    position: Longitude + ";" + Latitude + ";0",
+                                                    tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address + fieldValue,
+                                                    key: element.Werks
+                                                });
+                                                pie.addItem(
+                                                    new sap.ui.vbm.PieItem({
+                                                        color: "{i18n>colorLABST}",
+                                                        name: "{i18n>LABST}",
+                                                        value: element.Labst.replace(/\s/g, "")
+                                                    })
+                                                )
+                                                pie.addItem(new sap.ui.vbm.PieItem({
+                                                    color: "{i18n>colorEINME}",
+                                                    name: "{i18n>EINME}",
+                                                    value: element.Einme.replace(/\s/g, ""),
+                                                    // click: function (e) {
+                                                    //     console.log("var Pie = new sap.ui.vbm.Pie({ ")
+                                                    // }
+                                                }));
+                                                pie.addItem(new sap.ui.vbm.PieItem({
+                                                    color: "{i18n>colorSPEME}",
+                                                    name: "{i18n>SPEME}",
+                                                    value: element.Speme.replace(/\s/g, "")
+                                                }));
+                                                pie.addItem(new sap.ui.vbm.PieItem({
+                                                    color: "{i18n>colorINSME}",
+                                                    name: "{i18n>INSME}",
+                                                    value: element.Insme.replace(/\s/g, "")
+                                                }));
+                                                pie.addItem(new sap.ui.vbm.PieItem({
+                                                    color: "{i18n>colorRETME}",
+                                                    name: "{i18n>RETME}",
+                                                    value: element.Retme.replace(/\s/g, "")
+                                                }));
+                                                pie.addItem(new sap.ui.vbm.PieItem({
+                                                    color: "{i18n>colorUMLME}",
+                                                    name: "{i18n>UMLME}",
+                                                    value: element.Umlme.replace(/\s/g, "")
+                                                }));
+                                                // Add Pie to the view
+                                                that._onGetViewById('sQuantityPies').addItem(pie)
                                             }
-                                        }
 
-                                    } catch (error) {
-                                        console.log(error);
+                                            // ConformityKey logic
+
+                                            if (element.ConformityKey != "") {
+                                                s++
+                                                const conformityPie = new sap.ui.vbm.Pie({
+                                                    scale: "3;1;1",
+                                                    position: Longitude + ";" + Latitude + ";0",
+                                                    tooltip: "Plant : " + element.Name1 + "\nAdresse : " + element.Address,
+                                                    key: element.Werks
+                                                });
+
+                                                conformityKey = element.ConformityKey.split("|");
+                                                conformityLabel = element.ConformityLabel.split("|");
+                                                conformityValue = element.ConformityValue.split("|");
+
+                                                conformityKey.map((key, idx) => {
+                                                    // Pay attention to the key -- Starting from 1
+                                                    if (conformityValue[idx].replace(/\s/g, "") > 0) {
+                                                        let object = {}
+                                                        object.key = key
+                                                        object.label = conformityLabel[idx]
+                                                        g_array.push(object)
+
+                                                        let tooltipValueToAdd = ''
+                                                        if (key == "ZZ") {
+                                                            tooltipValueToAdd = tooltipValueToAdd + "\n" + conformityLabel[idx] + " : " + conformityValue[idx].replace(/\s/g, "")
+                                                        } else {
+                                                            tooltipValueToAdd = tooltipValueToAdd + "\n" + conformityKey[idx] + " - " + conformityLabel[idx] + " : " + conformityValue[idx].replace(/\s/g, "")
+                                                        }
+
+                                                        conformityPie.addItem(
+                                                            new sap.ui.vbm.PieItem({
+                                                                color: sap.ui.getCore().byId("application-smartstock-display-component---Main").getModel("i18n").getProperty(conformityKey[idx]),
+                                                                name: conformityLabel[idx],
+                                                                value: conformityValue[idx]
+                                                            })
+                                                        )
+                                                    }
+                                                })
+
+                                                var P = "Plant : " + element.Name1 + "\nAdresse : " + element.Address + tooltipValueToAdd;
+                                                conformityPie.setTooltip(P);
+                                                if (conformityPie.getItems().length != 0) {
+                                                    that._onGetViewById('sConformityPies').addItem(conformityPie)
+                                                }
+                                            }
+
+                                        } catch (error) {
+                                            console.log(error);
+                                        }
                                     }
 
                                 }
